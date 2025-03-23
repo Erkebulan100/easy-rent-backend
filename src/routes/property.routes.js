@@ -5,7 +5,8 @@ const router = express.Router();
 
 // Get all properties (public access)
 router.get('/', propertyController.getAllProperties);
-
+// Search properties (public access)
+router.get('/search', propertyController.searchProperties);
 // Get a single property (public access)
 router.get('/:id', propertyController.getPropertyById);
 

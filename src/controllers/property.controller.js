@@ -154,3 +154,53 @@ exports.deleteProperty = async (req, res) => {
     });
   }
 };
+
+// Search properties using text search
+exports.searchProperties = async (req, res) => {
+  try {
+    const { query, propertyType, minPrice, maxPrice, bedrooms, city } = req.query;
+    
+    // Build filter object
+    const filter = {};
+    
+    // Add text search if query parameter is provided
+    if (query) {
+      filter.$text = { $search: query };
+    }
+    
+    // Add other filters
+    if (propertyType) filter.propertyType = propertyType;
+    if (city) filter['location.city'] = { $regex: city, $options: 'i' };
+    if (bedrooms) filter.bedrooms = { $gte: parseInt(bedrooms) };
+    
+    // Price filtering
+    if (minPrice || maxPrice) {
+      filter['price.amount'] = {};
+      if (minPrice) filter['price.amount'].$gte = parseInt(minPrice);
+      if (maxPrice) filter['price.amount'].$lte = parseInt(maxPrice);
+    }
+
+    // Execute the query, sort by text score if text search is used
+    let properties;
+    if (query) {
+      properties = await Property.find(filter)
+        .populate('owner', 'name email')
+        .sort({ score: { $meta: 'textScore' } });
+    } else {
+      properties = await Property.find(filter)
+        .populate('owner', 'name email');
+    }
+    
+    res.status(200).json({
+      success: true,
+      count: properties.length,
+      data: properties
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+};

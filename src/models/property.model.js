@@ -83,6 +83,24 @@ propertySchema.pre('save', function(next) {
   next();
 });
 
+// Add text index for search functionality
+propertySchema.index(
+  { 
+    title: 'text', 
+    description: 'text', 
+    'location.address': 'text',
+    'location.city': 'text'
+  },
+  {
+    weights: {
+      title: 10,
+      description: 5,
+      'location.address': 7,
+      'location.city': 8
+    },
+    name: "PropertySearchIndex"
+  }
+);
 const Property = mongoose.model('Property', propertySchema);
 
 module.exports = Property;
