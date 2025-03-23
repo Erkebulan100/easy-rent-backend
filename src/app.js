@@ -4,8 +4,10 @@ const helmet = require('helmet');
 const authRoutes = require('./routes/auth.routes');
 const propertyRoutes = require('./routes/property.routes'); // Add this line
 const locationRoutes = require('./routes/location.routes');
-const app = express();
 const messageRoutes = require('./routes/message.routes');
+const aiRoutes = require('./routes/ai.routes');
+
+const app = express();
 
 // Middleware
 app.use(helmet());
@@ -24,3 +26,4 @@ app.use('/api/properties', propertyRoutes); // Add this line
 app.use('/api/location', locationRoutes);
 module.exports = app;
 app.use('/api/messages', messageRoutes);
+app.use('/api/ai', aiRoutes);
