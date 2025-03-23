@@ -1,4 +1,5 @@
 const Property = require('../models/property.model');
+const mapsService = require('../services/maps.service');
 
 // Get all properties (with optional filtering)
 exports.getAllProperties = async (req, res) => {
@@ -66,6 +67,29 @@ exports.createProperty = async (req, res) => {
   try {
     // Add owner from authenticated user
     req.body.owner = req.user._id;
+    
+    // If address is provided but coordinates are not, geocode the address
+    if (
+      req.body.location && 
+      req.body.location.address && 
+      (!req.body.location.coordinates || 
+       !req.body.location.coordinates.latitude || 
+       !req.body.location.coordinates.longitude)
+    ) {
+      try {
+        const fullAddress = `${req.body.location.address}, ${req.body.location.city}`;
+        const geocodeResult = await mapsService.geocodeAddress(fullAddress);
+        
+        // Update the property data with coordinates
+        req.body.location.coordinates = geocodeResult.coordinates;
+        
+        // Optionally update with the formatted address from Google
+        // req.body.location.address = geocodeResult.formattedAddress;
+      } catch (geocodeError) {
+        console.error('Error geocoding address:', geocodeError);
+        // Continue without coordinates if geocoding fails
+      }
+    }
     
     const property = await Property.create(req.body);
     

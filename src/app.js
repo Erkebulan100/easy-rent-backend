@@ -3,8 +3,9 @@ const cors = require('cors');
 const helmet = require('helmet');
 const authRoutes = require('./routes/auth.routes');
 const propertyRoutes = require('./routes/property.routes'); // Add this line
-
+const locationRoutes = require('./routes/location.routes');
 const app = express();
+const messageRoutes = require('./routes/message.routes');
 
 // Middleware
 app.use(helmet());
@@ -20,5 +21,6 @@ app.get('/', (req, res) => {
 // Routes will be added here later
 app.use('/api/auth', authRoutes);
 app.use('/api/properties', propertyRoutes); // Add this line
-
+app.use('/api/location', locationRoutes);
 module.exports = app;
+app.use('/api/messages', messageRoutes);
