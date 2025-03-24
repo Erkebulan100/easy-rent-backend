@@ -1,14 +1,16 @@
+
 const OpenAI = require('openai');
 
 // Initialize OpenAI client
-console.log('OpenAI API Key exists:', !!process.env.OPENAI_API_KEY);
-console.log('OpenAI API Key format check:', process.env.OPENAI_API_KEY ? 
-  `Starts with: ${process.env.OPENAI_API_KEY.substring(0, 7)}... Length: ${process.env.OPENAI_API_KEY.length}` : 
-  'undefined');
-
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.OPENAI_API_KEY,
+  project: process.env.OPENAI_PROJECT_ID // 👈 Add this line
 });
+// Add this after the openai initialization
+console.log('OpenAI API Key exists:', !!process.env.OPENAI_API_KEY);
+console.log('OpenAI API Key starts with:', process.env.OPENAI_API_KEY ? process.env.OPENAI_API_KEY.substring(0, 5) + '...' : 'undefined');
+console.log("ENV API key ends with:", process.env.OPENAI_API_KEY?.slice(-6));
+console.log("ENV Project ID:", process.env.OPENAI_PROJECT_ID);
 
 /**
  * Process a natural language query to extract property search parameters
@@ -64,34 +66,7 @@ const processNaturalLanguageQuery = async (query) => {
       console.error('Status:', error.response.status);
       console.error('Data:', error.response.data);
     }
-    
-    // Fallback to a basic keyword extraction for development purposes
-    console.log('Using fallback keyword extraction');
-    const fallbackParameters = {};
-    
-    // Simple keyword matching
-    if (query.toLowerCase().includes('apartment')) fallbackParameters.propertyType = 'apartment';
-    else if (query.toLowerCase().includes('house')) fallbackParameters.propertyType = 'house';
-    else if (query.toLowerCase().includes('studio')) fallbackParameters.propertyType = 'studio';
-    else if (query.toLowerCase().includes('room')) fallbackParameters.propertyType = 'room';
-    
-    // Extract city
-    if (query.toLowerCase().includes('bishkek')) fallbackParameters.city = 'Bishkek';
-    
-    // Extract bedrooms
-    const bedroomMatch = query.match(/(\d+)\s*bedroom/i);
-    if (bedroomMatch) fallbackParameters.bedrooms = parseInt(bedroomMatch[1]);
-    
-    // Extract price
-    const priceMatch = query.match(/\$(\d+)/);
-    if (priceMatch) {
-      const price = parseInt(priceMatch[1]);
-      fallbackParameters.maxPrice = price;
-      fallbackParameters.minPrice = Math.max(0, price - 100);
-    }
-    
-    console.log('Fallback parameters:', fallbackParameters);
-    return fallbackParameters;
+    throw new Error('Failed to process natural language query');
   }
 };
 
@@ -110,9 +85,7 @@ const transcribeAudio = async (audioBuffer) => {
     return response.text;
   } catch (error) {
     console.error('Whisper API error:', error);
-    
-    // Return fallback message for development
-    return "This is a fallback transcription. The API couldn't process your audio.";
+    throw new Error('Failed to transcribe audio');
   }
 };
 
