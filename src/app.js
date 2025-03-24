@@ -6,6 +6,7 @@ const propertyRoutes = require('./routes/property.routes'); // Add this line
 const locationRoutes = require('./routes/location.routes');
 const messageRoutes = require('./routes/message.routes');
 const aiRoutes = require('./routes/ai.routes');
+const uploadRoutes = require('./routes/upload.routes');
 
 const app = express();
 
@@ -27,3 +28,4 @@ app.use('/api/location', locationRoutes);
 module.exports = app;
 app.use('/api/messages', messageRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/uploads', uploadRoutes);
