@@ -3,7 +3,8 @@ const app = require('./src/app');
 const mongoose = require('mongoose');
 const config = require('./src/config/config');
 
-const PORT = config.port;
+// ✅ Use AWS-recommended PORT handling
+const PORT = process.env.PORT || config.port || 5000;
 
 console.log(`Starting server in ${config.nodeEnv} mode`);
 console.log("ENV loaded from .env");
@@ -14,12 +15,12 @@ if (!config.openaiApiKey) {
   console.warn("⚠️ OPENAI_API_KEY is missing! Check your .env file.");
 }
 
-// Database connection
+// ✅ Connect to MongoDB
 mongoose.connect(config.mongoURI)
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-// Start server
+// ✅ Start the Express app
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`✅ Server is running on port ${PORT}`);
 });
