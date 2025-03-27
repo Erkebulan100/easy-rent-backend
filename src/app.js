@@ -10,6 +10,7 @@ const locationRoutes = require('./routes/location.routes');
 const messageRoutes = require('./routes/message.routes');
 const aiRoutes = require('./routes/ai.routes');
 const uploadRoutes = require('./routes/upload.routes');
+const swaggerDocs = require('./config/swagger');
 
 const app = express();
 
@@ -57,5 +58,8 @@ app.use((err, req, res, next) => {
     error: config.nodeEnv === 'production' ? 'An unexpected error occurred' : err.message
   });
 });
+
+// Setup Swagger
+swaggerDocs(app);
 
 module.exports = app;
