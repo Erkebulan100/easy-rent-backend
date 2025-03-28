@@ -37,13 +37,18 @@ if (config.nodeEnv === 'production') {
       }
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
   }));
 } else {
-  // Development - allow all origins
-  app.use(cors());
+  // Development - allow all origins with full configuration
+  app.use(cors({
+    origin: true, // Dynamically reflect the request origin
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+  }));
 }
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
