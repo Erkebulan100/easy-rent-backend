@@ -19,8 +19,23 @@ app.use(helmet());
 
 // CORS configuration - use specific origin in production
 if (config.nodeEnv === 'production') {
+  const allowedOrigins = config.corsOrigin.split(',').map(origin => origin.trim());
+  
   app.use(cors({
-    origin: config.corsOrigin,
+    origin: function (origin, callback) {
+      // If no origin (like server-to-server requests), allow
+      if (!origin) return callback(null, true);
+      
+      // Check if the origin is in the allowed list
+      if (allowedOrigins.indexOf(origin) !== -1 || 
+          allowedOrigins.some(allowedOrigin => 
+            origin.startsWith(allowedOrigin.replace(/\/$/, ''))
+          )) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
   }));
