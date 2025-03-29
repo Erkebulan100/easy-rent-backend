@@ -69,11 +69,24 @@ Copy
 
 ### Properties
 - `GET /api/properties` - Get all properties (with filtering)
-- `GET /api/properties/search` - Search properties with text
+  - Supports filtering by: propertyType, minPrice, maxPrice, bedrooms, city, district, microdistrict, floor, minArea, maxArea, minLandArea, maxLandArea, buildingClass, wallMaterial, separateBathroom, parking, paymentPeriod
+- `GET /api/properties/search` - Search properties with text and advanced filtering
+  - Supports all the same filters as above plus text search
 - `GET /api/properties/:id` - Get a single property
 - `POST /api/properties` - Create a new property (landlords only)
 - `PUT /api/properties/:id` - Update a property (owner or admin only)
 - `DELETE /api/properties/:id` - Delete a property (owner or admin only)
+
+## Property Model
+Properties include comprehensive information:
+- Basic details: title, description, propertyType (apartment, house, studio, room)
+- Location: address, city, district, microdistrict, coordinates
+- Price: amount, currency, paymentPeriod (daily, weekly, monthly, yearly)
+- Features: bedrooms, bathrooms, area
+- Area details: livingSpace, kitchenArea, landArea
+- Building details: floor, totalFloors, ceilingHeight, wallMaterial, buildingClass, yearBuilt
+- Facilities: separateBathroom, parking, parkingDetails
+- Additional: amenities, images, availability status, owner reference
 
 ### Messages
 - `POST /api/messages` - Send a message

@@ -312,7 +312,8 @@ router.post('/', auth, (req, res, next) => {
  */
 // Update a property (requires authentication - owner or admin only)
 router.put('/:id', auth, propertyController.updateProperty);
-
+// Update a property (partial update - requires authentication - owner or admin only)
+router.patch('/:id', auth, propertyController.updateProperty);
 /**
  * @swagger
  * /api/properties/{id}:
