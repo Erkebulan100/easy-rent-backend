@@ -24,6 +24,14 @@ const propertySchema = new mongoose.Schema({
       type: String,
       required: true
     },
+    district: {
+      type: String,
+      trim: true
+    },
+    microdistrict: {
+      type: String,
+      trim: true
+    },
     coordinates: {
       latitude: Number,
       longitude: Number
@@ -52,9 +60,43 @@ const propertySchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  // General area (used by both apartment and house)
   area: {
-    type: Number, // square meters or feet
+    type: Number, // square meters
     required: true
+  },
+  // Additional detailed area information
+  areaDetails: {
+    livingSpace: Number, // square meters (for apartments)
+    kitchenArea: Number, // square meters
+    landArea: Number,    // square meters (for houses)
+  },
+  // Building characteristics
+  buildingDetails: {
+    floor: Number,       // for apartments
+    totalFloors: Number, // total floors in the building
+    ceilingHeight: Number, // meters
+    wallMaterial: {
+      type: String,
+      enum: ['brick', 'monoblock', 'gas block', 'wood', 'concrete', 'other']
+    },
+    buildingClass: {
+      type: String,
+      enum: ['standard', 'comfort', 'business', 'elite', 'premium', 'economy']
+    },
+    yearBuilt: Number
+  },
+  // Facilities
+  facilities: {
+    separateBathroom: {
+      type: Boolean,
+      default: false
+    },
+    parking: {
+      type: Boolean,
+      default: false
+    },
+    parkingDetails: String, // Underground, dedicated spot, etc.
   },
   amenities: [String],
   images: [String], // URLs to images
@@ -89,18 +131,23 @@ propertySchema.index(
     title: 'text', 
     description: 'text', 
     'location.address': 'text',
-    'location.city': 'text'
+    'location.city': 'text',
+    'location.district': 'text',
+    'location.microdistrict': 'text'
   },
   {
     weights: {
       title: 10,
       description: 5,
       'location.address': 7,
-      'location.city': 8
+      'location.city': 8,
+      'location.district': 6,
+      'location.microdistrict': 6
     },
     name: "PropertySearchIndex"
   }
 );
+
 const Property = mongoose.model('Property', propertySchema);
 
 module.exports = Property;

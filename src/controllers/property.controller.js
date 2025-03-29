@@ -2,16 +2,25 @@ const Property = require('../models/property.model');
 const mapsService = require('../services/maps.service');
 
 // Get all properties (with optional filtering)
+// Update the getAllProperties method to support the new filters
 exports.getAllProperties = async (req, res) => {
   try {
     // Extract filter parameters from query
-    const { propertyType, minPrice, maxPrice, bedrooms, city } = req.query;
+    const { 
+      propertyType, minPrice, maxPrice, bedrooms, city, 
+      district, microdistrict, floor, minArea, maxArea,
+      minLandArea, maxLandArea, buildingClass, wallMaterial,
+      separateBathroom, parking, paymentPeriod
+    } = req.query;
     
     // Build filter object
     const filter = {};
     
+    // Basic filters
     if (propertyType) filter.propertyType = propertyType;
     if (city) filter['location.city'] = { $regex: city, $options: 'i' }; // Case insensitive search
+    if (district) filter['location.district'] = { $regex: district, $options: 'i' };
+    if (microdistrict) filter['location.microdistrict'] = { $regex: microdistrict, $options: 'i' };
     if (bedrooms) filter.bedrooms = { $gte: parseInt(bedrooms) };
     
     // Price filtering
@@ -20,6 +29,32 @@ exports.getAllProperties = async (req, res) => {
       if (minPrice) filter['price.amount'].$gte = parseInt(minPrice);
       if (maxPrice) filter['price.amount'].$lte = parseInt(maxPrice);
     }
+
+    // Payment period
+    if (paymentPeriod) filter['price.paymentPeriod'] = paymentPeriod;
+    
+    // Area filters
+    if (minArea || maxArea) {
+      filter.area = {};
+      if (minArea) filter.area.$gte = parseInt(minArea);
+      if (maxArea) filter.area.$lte = parseInt(maxArea);
+    }
+    
+    // Land area filters (for houses)
+    if (minLandArea || maxLandArea) {
+      filter['areaDetails.landArea'] = {};
+      if (minLandArea) filter['areaDetails.landArea'].$gte = parseInt(minLandArea);
+      if (maxLandArea) filter['areaDetails.landArea'].$lte = parseInt(maxLandArea);
+    }
+    
+    // Building details
+    if (floor) filter['buildingDetails.floor'] = parseInt(floor);
+    if (buildingClass) filter['buildingDetails.buildingClass'] = buildingClass;
+    if (wallMaterial) filter['buildingDetails.wallMaterial'] = wallMaterial;
+    
+    // Facilities
+    if (separateBathroom) filter['facilities.separateBathroom'] = separateBathroom === 'true';
+    if (parking) filter['facilities.parking'] = parking === 'true';
 
     const properties = await Property.find(filter).populate('owner', 'name email');
     
@@ -62,6 +97,7 @@ exports.getPropertyById = async (req, res) => {
   }
 };
 
+// Create a new property
 // Create a new property
 exports.createProperty = async (req, res) => {
   try {
@@ -180,9 +216,15 @@ exports.deleteProperty = async (req, res) => {
 };
 
 // Search properties using text search
+// Search properties using text search
 exports.searchProperties = async (req, res) => {
   try {
-    const { query, propertyType, minPrice, maxPrice, bedrooms, city } = req.query;
+    const { 
+      query, propertyType, minPrice, maxPrice, bedrooms, city,
+      district, microdistrict, floor, minArea, maxArea,
+      minLandArea, maxLandArea, buildingClass, wallMaterial,
+      separateBathroom, parking, paymentPeriod
+    } = req.query;
     
     // Build filter object
     const filter = {};
@@ -195,6 +237,8 @@ exports.searchProperties = async (req, res) => {
     // Add other filters
     if (propertyType) filter.propertyType = propertyType;
     if (city) filter['location.city'] = { $regex: city, $options: 'i' };
+    if (district) filter['location.district'] = { $regex: district, $options: 'i' };
+    if (microdistrict) filter['location.microdistrict'] = { $regex: microdistrict, $options: 'i' };
     if (bedrooms) filter.bedrooms = { $gte: parseInt(bedrooms) };
     
     // Price filtering
@@ -203,6 +247,32 @@ exports.searchProperties = async (req, res) => {
       if (minPrice) filter['price.amount'].$gte = parseInt(minPrice);
       if (maxPrice) filter['price.amount'].$lte = parseInt(maxPrice);
     }
+    
+    // Payment period
+    if (paymentPeriod) filter['price.paymentPeriod'] = paymentPeriod;
+    
+    // Area filters
+    if (minArea || maxArea) {
+      filter.area = {};
+      if (minArea) filter.area.$gte = parseInt(minArea);
+      if (maxArea) filter.area.$lte = parseInt(maxArea);
+    }
+    
+    // Land area filters (for houses)
+    if (minLandArea || maxLandArea) {
+      filter['areaDetails.landArea'] = {};
+      if (minLandArea) filter['areaDetails.landArea'].$gte = parseInt(minLandArea);
+      if (maxLandArea) filter['areaDetails.landArea'].$lte = parseInt(maxLandArea);
+    }
+    
+    // Building details
+    if (floor) filter['buildingDetails.floor'] = parseInt(floor);
+    if (buildingClass) filter['buildingDetails.buildingClass'] = buildingClass;
+    if (wallMaterial) filter['buildingDetails.wallMaterial'] = wallMaterial;
+    
+    // Facilities
+    if (separateBathroom) filter['facilities.separateBathroom'] = separateBathroom === 'true';
+    if (parking) filter['facilities.parking'] = parking === 'true';
 
     // Execute the query, sort by text score if text search is used
     let properties;
