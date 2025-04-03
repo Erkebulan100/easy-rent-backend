@@ -39,6 +39,18 @@ const userSchema = new mongoose.Schema({
   resetPasswordExpires: {
     type: Date
   },
+  phoneNumber: {
+    type: String,
+    trim: true,
+    validate: {
+      validator: function(v) {
+        // Optional: Add a phone number validation regex if needed
+        // This is a simple example that allows international format
+        return /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/.test(v);
+      },
+      message: props => `${props.value} is not a valid phone number!`
+    }
+  },
 });
 
 // Hash password before saving
