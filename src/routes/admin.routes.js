@@ -16,7 +16,7 @@ router.get('/users/:id', adminController.getUserById);
 
 // Update user
 router.put('/users/:id', adminController.updateUser);
-
+router.patch('/users/:id', adminController.updateUser);
 // Delete user
 router.delete('/users/:id', adminController.deleteUser);
 
