@@ -11,6 +11,7 @@ const messageRoutes = require('./routes/message.routes');
 const aiRoutes = require('./routes/ai.routes');
 const uploadRoutes = require('./routes/upload.routes');
 const swaggerDocs = require('./config/swagger');
+const adminRoutes = require('./routes/admin.routes');
 
 const app = express();
 
@@ -68,6 +69,7 @@ app.use('/api/location', locationRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/uploads', uploadRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
