@@ -298,3 +298,21 @@ exports.searchProperties = async (req, res) => {
     });
   }
 };
+// Get properties for the logged-in landlord
+exports.getMyProperties = async (req, res) => {
+  try {
+    const properties = await Property.find({ owner: req.user._id }).populate('owner', 'name email');
+    
+    res.status(200).json({
+      success: true,
+      count: properties.length,
+      data: properties
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+};

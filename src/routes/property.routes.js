@@ -350,5 +350,6 @@ router.patch('/:id', auth, propertyController.updateProperty);
  */
 // Delete a property (requires authentication - owner or admin only)
 router.delete('/:id', auth, propertyController.deleteProperty);
-
+// Get properties for logged-in landlord (requires authentication)
+router.get('/my-properties', auth, propertyController.getMyProperties);
 module.exports = router;
