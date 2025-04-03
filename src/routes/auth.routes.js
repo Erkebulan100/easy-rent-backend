@@ -125,5 +125,8 @@ router.post('/register', authController.register);
  */
 // Login user
 router.post('/login', authController.login);
-
+// Request password reset
+router.post('/forgot-password', authController.requestPasswordReset);
+// Reset password with token
+router.post('/reset-password', authController.resetPassword);
 module.exports = router;
