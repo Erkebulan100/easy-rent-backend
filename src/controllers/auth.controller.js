@@ -5,7 +5,12 @@ const crypto = require('crypto');
 // Register a new user
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, gender } = req.body;
+    
+    // Validate gender
+    if (!['male', 'female'].includes(gender)) {
+      return res.status(400).json({ message: 'Invalid gender selection' });
+    }
     
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -18,7 +23,8 @@ exports.register = async (req, res) => {
       name,
       email,
       password,
-      role
+      role,
+      gender // Add gender to user creation
     });
     
     await user.save();
@@ -37,7 +43,8 @@ exports.register = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        gender: user.gender // Include gender in response
       }
     });
   } catch (error) {

@@ -23,6 +23,12 @@ const userSchema = new mongoose.Schema({
     enum: ['tenant', 'landlord', 'admin'],
     default: 'tenant'
   },
+  // We'll add the gender field here
+  gender: {
+    type: String,
+    enum: ['male', 'female'], 
+    required: true // Make it a required field
+  },
   createdAt: {
     type: Date,
     default: Date.now
