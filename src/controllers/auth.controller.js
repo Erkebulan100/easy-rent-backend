@@ -8,9 +8,9 @@ exports.register = async (req, res) => {
     const { name, email, password, role, gender } = req.body;
     
     // Validate gender
-    if (!['male', 'female'].includes(gender)) {
-      return res.status(400).json({ message: 'Invalid gender selection' });
-    }
+    // if (!['male', 'female'].includes(gender)) {
+    //   return res.status(400).json({ message: 'Invalid gender selection' });
+    // }
     
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -24,7 +24,7 @@ exports.register = async (req, res) => {
       email,
       password,
       role,
-      gender // Add gender to user creation
+      ...(gender && { gender }) // Only add gender if it's provided
     });
     
     await user.save();
