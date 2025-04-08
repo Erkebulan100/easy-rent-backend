@@ -13,21 +13,38 @@ const geocodeAddress = async (address) => {
     const response = await googleMapsClient.geocode({
       params: {
         address: address,
-        key: process.env.GOOGLE_MAPS_API_KEY
+        key: process.env.GOOGLE_MAPS_API_KEY,
+        region: 'kg',  // ISO 3166-1 alpha-2 code for Kyrgyzstan
+        components: 'country:KG'  // Restrict results to Kyrgyzstan
       }
     });
-
+    console.log('Full Geocoding Response:', JSON.stringify(response.data, null, 2));
     if (response.data.status !== 'OK' || !response.data.results.length) {
       throw new Error('Geocoding failed or no results found');
     }
 
     const result = response.data.results[0];
+    // Log address components for detailed inspection
+    console.log('Address Components:', JSON.stringify(result.address_components, null, 2));
+    // Enhanced location component extraction
+    const extractAddressComponent = (types) => {
+      const component = result.address_components.find(comp => 
+        comp.types.some(type => types.includes(type))
+      );
+      return component ? component.long_name : null;
+    };
+
     return {
       coordinates: {
         latitude: result.geometry.location.lat,
         longitude: result.geometry.location.lng
       },
-      formattedAddress: result.formatted_address
+      formattedAddress: result.formatted_address,
+      city: extractAddressComponent(['locality', 'administrative_area_level_1']),
+      district: extractAddressComponent(['administrative_area_level_2', 'sublocality_level_1']),
+      microdistrict: extractAddressComponent(['neighborhood', 'sublocality_level_2', 'sublocality_level_3']),
+      addressComponents: result.address_components,
+      placeId: result.place_id
     };
   } catch (error) {
     console.error('Geocoding error:', error);
