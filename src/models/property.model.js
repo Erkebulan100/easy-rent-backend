@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { currencyValues, paymentPeriodValues } = require('../config/constants');
 
 const propertySchema = new mongoose.Schema({
   title: {
@@ -44,11 +45,12 @@ const propertySchema = new mongoose.Schema({
     },
     currency: {
       type: String,
+      enum: currencyValues,
       default: 'USD'
     },
     paymentPeriod: {
       type: String,
-      enum: ['daily', 'weekly', 'monthly', 'yearly'],
+      enum: paymentPeriodValues,
       default: 'monthly'
     }
   },

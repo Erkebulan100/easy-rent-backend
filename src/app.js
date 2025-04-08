@@ -14,6 +14,7 @@ const swaggerDocs = require('./config/swagger');
 const adminRoutes = require('./routes/admin.routes');
 // Add this line with the other route imports
 const userRoutes = require('./routes/user.routes');
+const constantsRoutes = require('./routes/constants.routes');
 
 const app = express();
 
@@ -74,6 +75,7 @@ app.use('/api/uploads', uploadRoutes);
 app.use('/api/admin', adminRoutes);
 // Add this line with the other app.use statements for routes
 app.use('/api/users', userRoutes);
+app.use('/api/constants', constantsRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
