@@ -100,10 +100,79 @@ exports.getPropertyById = async (req, res) => {
 // Create a new property
 // Create a new property
 // Create a new property
+// Create a new property
 exports.createProperty = async (req, res) => {
   try {
     // Add owner from authenticated user
     req.body.owner = req.user._id;
+    
+    // Process images - extract only the URLs
+    let processedImages = [];
+    
+    // The frontend is sending image data as arrays with [file] and [url] properties
+    // We need to extract just the string URLs
+    if (req.body.images) {
+      // First check if images is already an array of strings
+      if (Array.isArray(req.body.images)) {
+        processedImages = req.body.images.filter(img => typeof img === 'string');
+      } else {
+        // Check if images are being sent as separate form fields
+        for (let i = 0; i < 20; i++) { // Limit to reasonable number
+          const imageUrl = req.body[`images[${i}][url]`];
+          if (imageUrl && typeof imageUrl === 'string' && !imageUrl.startsWith('blob:')) {
+            processedImages.push(imageUrl);
+          }
+        }
+      }
+      
+      // Replace the images array with processed URLs
+      req.body.images = processedImages;
+    }
+    
+    // Ensure required numeric fields are properly converted
+    if (req.body.bedrooms) req.body.bedrooms = Number(req.body.bedrooms);
+    if (req.body.bathrooms) req.body.bathrooms = Number(req.body.bathrooms);
+    if (req.body.area) req.body.area = Number(req.body.area);
+    
+    // If location fields are sent as separate form fields, restructure them
+    if (req.body['location[address]']) {
+      req.body.location = {
+        ...(req.body.location || {}),
+        address: req.body['location[address]'],
+        city: req.body['location[city]'],
+        district: req.body['location[district]'],
+        microdistrict: req.body['location[microDistrict]']
+      };
+      
+      // Handle coordinates
+      if (req.body['location[lat]'] && req.body['location[lng]']) {
+        req.body.location.coordinates = {
+          latitude: Number(req.body['location[lat]']),
+          longitude: Number(req.body['location[lng]'])
+        };
+      }
+    }
+    
+    // Handle price if sent as separate form fields
+    if (req.body['price[amount]']) {
+      req.body.price = {
+        ...(req.body.price || {}),
+        amount: Number(req.body['price[amount]']),
+        currency: req.body['price[currency]'],
+        paymentPeriod: req.body['price[paymentPeriod]']
+      };
+    }
+    
+    // If amenities are sent as separate form fields, reconstruct the array
+    let amenities = [];
+    for (let i = 0; i < 20; i++) {
+      if (req.body[`amenities[${i}]`]) {
+        amenities.push(req.body[`amenities[${i}]`]);
+      }
+    }
+    if (amenities.length > 0) {
+      req.body.amenities = amenities;
+    }
     
     // If address is provided but coordinates are not, geocode the address
     if (
@@ -117,21 +186,21 @@ exports.createProperty = async (req, res) => {
         const fullAddress = `${req.body.location.address}, ${req.body.location.city || ''}`;
         const geocodeResult = await mapsService.geocodeAddress(fullAddress);
         
-       // Update the property data with coordinates
-req.body.location.coordinates = {
-  latitude: geocodeResult.coordinates.latitude,
-  longitude: geocodeResult.coordinates.longitude
-};
+        // Update the property data with coordinates
+        req.body.location.coordinates = {
+          latitude: geocodeResult.coordinates.latitude,
+          longitude: geocodeResult.coordinates.longitude
+        };
 
-// If city is not provided, try to extract it from geocode result
-if (!req.body.location.city && geocodeResult.addressComponents) {
-  const cityComponent = geocodeResult.addressComponents.find(
-    comp => comp.types.includes('locality') || comp.types.includes('administrative_area_level_1')
-  );
-  if (cityComponent) {
-    req.body.location.city = cityComponent.long_name;
-  }
-}
+        // If city is not provided, try to extract it from geocode result
+        if (!req.body.location.city && geocodeResult.addressComponents) {
+          const cityComponent = geocodeResult.addressComponents.find(
+            comp => comp.types.includes('locality') || comp.types.includes('administrative_area_level_1')
+          );
+          if (cityComponent) {
+            req.body.location.city = cityComponent.long_name;
+          }
+        }
         
         // If district is not provided, try to extract it from geocode result
         if (!req.body.location.district && geocodeResult.addressComponents) {
@@ -163,6 +232,7 @@ if (!req.body.location.city && geocodeResult.addressComponents) {
       }
     }
     
+    console.log('Property data before creation:', JSON.stringify(req.body, null, 2));
     const property = await Property.create(req.body);
     
     res.status(201).json({
@@ -170,6 +240,7 @@ if (!req.body.location.city && geocodeResult.addressComponents) {
       data: property
     });
   } catch (error) {
+    console.error('Property creation error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error',
