@@ -73,7 +73,6 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/uploads', uploadRoutes);
 app.use('/api/admin', adminRoutes);
-// Add this line with the other app.use statements for routes
 app.use('/api/users', userRoutes);
 app.use('/api/constants', constantsRoutes);
 
