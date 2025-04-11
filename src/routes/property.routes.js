@@ -2,7 +2,8 @@ const express = require('express');
 const propertyController = require('../controllers/property.controller');
 const auth = require('../middleware/auth.middleware');
 const router = express.Router();
-
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage() });
 /**
  * @swagger
  * components:
@@ -266,7 +267,7 @@ router.post('/', auth, (req, res, next) => {
     });
   }
   next();
-}, propertyController.createProperty);
+}, upload.array('images'), propertyController.createProperty);
 
 /**
  * @swagger
