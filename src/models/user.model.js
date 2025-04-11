@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema({
   // We'll add the gender field here
   gender: {
     type: String,
-    enum: ['', 'male', 'female'], 
+    enum: ['', 'male', 'female', 'мужской', 'женский'], 
     default: '',
     required: false
   },
