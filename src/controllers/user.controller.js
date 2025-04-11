@@ -1,5 +1,5 @@
 const User = require('../models/user.model');
-
+const uploadService = require('../services/upload.service');
 // Update own profile
 exports.updateProfile = async (req, res) => {
   try {
@@ -55,6 +55,45 @@ exports.getProfile = async (req, res) => {
     res.status(200).json({
       success: true,
       data: user
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+};
+// Upload avatar
+exports.uploadAvatar = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No file uploaded'
+      });
+    }
+    
+    // Upload the file using our upload service
+    const fileUrl = await uploadService.uploadFile(
+      req.file.buffer,
+      req.file.originalname,
+      req.file.mimetype,
+      'avatars'
+    );
+    
+    // Update the user's avatar field
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { avatar: fileUrl },
+      { new: true }
+    ).select('-password');
+    
+    res.status(200).json({
+      success: true,
+      data: {
+        user
+      }
     });
   } catch (error) {
     res.status(500).json({
