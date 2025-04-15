@@ -15,6 +15,7 @@ const adminRoutes = require('./routes/admin.routes');
 // Add this line with the other route imports
 const userRoutes = require('./routes/user.routes');
 const constantsRoutes = require('./routes/constants.routes');
+const currencyRoutes = require('./routes/currency.routes');
 
 const app = express();
 
@@ -75,7 +76,7 @@ app.use('/api/uploads', uploadRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/constants', constantsRoutes);
-
+app.use('/api/currency', currencyRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
