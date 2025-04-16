@@ -26,39 +26,64 @@ const processNaturalLanguageQuery = async (query) => {
       messages: [
         {
           role: "system",
-          content: `You are a real estate assistant. Extract search parameters from the query. 
-                    Return a JSON object with these properties if mentioned:
+          content: `You are a friendly real estate assistant for Easy-Rent, a platform exclusively for property rentals (not sales).
+                    Respond conversationally to users' messages. If they greet you,
+                    respond to their greeting and ask how you can help them find a rental property.
+                    Always make it clear that Easy-Rent is only for renting properties, not buying or selling.
+                    Always analyze their message for property search criteria and include a
+                    JSON object called "searchParams" with these properties if mentioned:
                     - propertyType (apartment, house, studio, room)
                     - minPrice (numeric value only)
                     - maxPrice (numeric value only)
                     - bedrooms (numeric value only)
+                    - bathrooms (numeric value only)
                     - city (string)
-                    - location (specific area or district within city)
-                    Only include parameters that are explicitly mentioned in the query.`
+                    - district (string)
+                    - microdistrict (string)
+                    - minArea/maxArea (numeric values for square meters)
+                    - parking (boolean)
+                    - paymentPeriod (daily, weekly, monthly, yearly)
+                    
+                    If their message doesn't contain search criteria, include an empty searchParams object.
+                    For property searches, respond conversationally first, then include the searchParams object.`
         },
         {
           role: "user",
           content: query
         }
       ],
-      temperature: 0.1,
+      temperature: 0.3,
       max_tokens: 500
     });
 
     console.log('OpenAI response received');
     
-    // Extract and parse the JSON response
+    // Extract the content from the response
     const content = response.choices[0].message.content;
     console.log('Raw content:', content);
     
+    // Extract the JSON object from the response
     try {
-      const extractedParameters = JSON.parse(content);
-      console.log('Extracted parameters:', extractedParameters);
-      return extractedParameters;
+      // Look for a JSON object in the response
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      let extractedParameters = {};
+      
+      if (jsonMatch) {
+        extractedParameters = JSON.parse(jsonMatch[0]);
+      }
+      
+      // Return both the full response and the extracted parameters
+      return {
+        conversationalResponse: content,
+        searchParams: extractedParameters.searchParams || {}
+      };
     } catch (parseError) {
       console.error('Failed to parse JSON response:', parseError);
       console.error('Response content:', content);
-      throw new Error('Failed to parse response from AI assistant');
+      return {
+        conversationalResponse: content,
+        searchParams: {}
+      };
     }
   } catch (error) {
     console.error('OpenAI API error:', error);

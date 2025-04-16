@@ -1,5 +1,7 @@
 const aiService = require('../services/ai.service');
 const Property = require('../models/property.model');
+// After building the filter object and before searching for properties
+// Add this code to check if there are any search parameters
 
 // Process natural language query and return search results
 exports.processQuery = async (req, res) => {
@@ -14,15 +16,25 @@ exports.processQuery = async (req, res) => {
     }
     
     // Process the natural language query
-    const searchParams = await aiService.processNaturalLanguageQuery(query);
+    const aiResponse = await aiService.processNaturalLanguageQuery(query);
     
     // Build filter object from extracted parameters
     const filter = {};
+    const searchParams = aiResponse.searchParams;
     
     if (searchParams.propertyType) filter.propertyType = searchParams.propertyType;
     if (searchParams.city) filter['location.city'] = { $regex: searchParams.city, $options: 'i' };
-    if (searchParams.location) filter['location.address'] = { $regex: searchParams.location, $options: 'i' };
+    if (searchParams.district) filter['location.district'] = { $regex: searchParams.district, $options: 'i' };
+    if (searchParams.microdistrict) filter['location.microdistrict'] = { $regex: searchParams.microdistrict, $options: 'i' };
     if (searchParams.bedrooms) filter.bedrooms = { $gte: parseInt(searchParams.bedrooms) };
+    if (searchParams.bathrooms) filter.bathrooms = { $gte: parseInt(searchParams.bathrooms) };
+    
+    // Area filtering
+    if (searchParams.minArea || searchParams.maxArea) {
+      filter.area = {};
+      if (searchParams.minArea) filter.area.$gte = parseInt(searchParams.minArea);
+      if (searchParams.maxArea) filter.area.$lte = parseInt(searchParams.maxArea);
+    }
     
     // Price filtering
     if (searchParams.minPrice || searchParams.maxPrice) {
@@ -30,14 +42,28 @@ exports.processQuery = async (req, res) => {
       if (searchParams.minPrice) filter['price.amount'].$gte = parseInt(searchParams.minPrice);
       if (searchParams.maxPrice) filter['price.amount'].$lte = parseInt(searchParams.maxPrice);
     }
-
-    // Search for properties with the extracted parameters
-    const properties = await Property.find(filter).populate('owner', 'name email');
     
+    // Facilities
+    if (searchParams.parking !== undefined) filter['facilities.parking'] = searchParams.parking;
+    
+    // Payment period
+    if (searchParams.paymentPeriod) filter['price.paymentPeriod'] = searchParams.paymentPeriod;
+
+   // Check if there are any search parameters
+const hasSearchParams = Object.keys(filter).length > 0;
+
+    // Only search for properties if search parameters exist
+    let properties = [];
+    if (hasSearchParams) {
+      // Search for properties with the extracted parameters
+      properties = await Property.find(filter).populate('owner', 'name email');
+    }
+
     res.status(200).json({
       success: true,
       count: properties.length,
-      searchParams,
+      conversationalResponse: aiResponse.conversationalResponse,
+      searchParams: aiResponse.searchParams,
       data: properties
     });
   } catch (error) {
