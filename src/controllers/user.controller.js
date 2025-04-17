@@ -81,7 +81,7 @@ exports.uploadAvatar = async (req, res) => {
       req.file.mimetype,
       'avatars'
     );
-    
+    console.log('File uploaded successfully, URL:', fileUrl);
     // Update the user's avatar field
     const user = await User.findByIdAndUpdate(
       req.user._id,
@@ -96,6 +96,7 @@ exports.uploadAvatar = async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Avatar upload error details:', error);
     res.status(500).json({
       success: false,
       message: 'Server error',
