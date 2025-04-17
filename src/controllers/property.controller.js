@@ -240,11 +240,15 @@ exports.createProperty = async (req, res) => {
       data: property
     });
   } catch (error) {
-    console.error('Property creation error:', error);
+    console.error('Error creating property:', error);
+    console.error('Request body:', JSON.stringify(req.body, null, 2));
+    
     res.status(500).json({
       success: false,
       message: 'Server error',
-      error: error.message
+      error: error.message,
+      stack: error.stack, // This will show the full error stack trace
+      body: req.body // This will show what was sent in the request
     });
   }
 };
