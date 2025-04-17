@@ -107,27 +107,27 @@ exports.createProperty = async (req, res) => {
     req.body.owner = req.user._id;
     
     // Process images - extract only the URLs
-    let processedImages = [];
-    
-    // The frontend is sending image data as arrays with [file] and [url] properties
-    // We need to extract just the string URLs
-    if (req.body.images) {
-      // First check if images is already an array of strings
-      if (Array.isArray(req.body.images)) {
-        processedImages = req.body.images.filter(img => typeof img === 'string');
-      } else {
-        // Check if images are being sent as separate form fields
-        for (let i = 0; i < 20; i++) { // Limit to reasonable number
-          const imageUrl = req.body[`images[${i}][url]`];
-          if (imageUrl && typeof imageUrl === 'string' && !imageUrl.startsWith('blob:')) {
-            processedImages.push(imageUrl);
-          }
-        }
+let processedImages = [];
+
+// The frontend is sending image data as arrays with [file] and [url] properties
+// We need to extract just the string URLs
+if (req.body.images) {
+  // First check if images is already an array of strings
+  if (Array.isArray(req.body.images)) {
+    processedImages = req.body.images.filter(img => typeof img === 'string' && !img.startsWith('blob:'));
+  } else {
+    // Check if images are being sent as separate form fields
+    for (let i = 0; i < 20; i++) { // Limit to reasonable number
+      const imageUrl = req.body[`images[${i}][url]`];
+      if (imageUrl && typeof imageUrl === 'string' && !imageUrl.startsWith('blob:')) {
+        processedImages.push(imageUrl);
       }
-      
-      // Replace the images array with processed URLs
-      req.body.images = processedImages;
     }
+  }
+  
+  // Replace the images array with processed URLs
+  req.body.images = processedImages;
+}
     
     // Ensure required numeric fields are properly converted
     if (req.body.bedrooms) req.body.bedrooms = Number(req.body.bedrooms);
