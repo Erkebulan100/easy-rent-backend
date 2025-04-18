@@ -3,6 +3,7 @@ const uploadService = require('../services/upload.service');
 // Update own profile
 exports.updateProfile = async (req, res) => {
   try {
+    console.log('Update profile request body:', req.body); // Add this line
     // Prevent updating role through this endpoint
     if (req.body.role) {
       delete req.body.role;
@@ -26,12 +27,13 @@ exports.updateProfile = async (req, res) => {
         message: 'User not found'
       });
     }
-    
+    console.log('Updated user:', user);
     res.status(200).json({
       success: true,
       data: user
     });
   } catch (error) {
+    console.error('Update profile error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error',
