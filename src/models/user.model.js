@@ -57,7 +57,27 @@ const userSchema = new mongoose.Schema({
     default: null
   },
 });
+// Add this pre-save middleware to normalize gender values
+userSchema.pre('save', function(next) {
+  // Normalize gender values
+  if (this.gender) {
+    // Map Russian to English
+    if (this.gender === 'мужской') this.gender = 'male';
+    if (this.gender === 'женский') this.gender = 'female';
+  }
+  next();
+});
 
+// Similar middleware for findOneAndUpdate operations
+userSchema.pre('findOneAndUpdate', function(next) {
+  const update = this.getUpdate();
+  if (update.gender) {
+    // Map Russian to English
+    if (update.gender === 'мужской') update.gender = 'male';
+    if (update.gender === 'женский') update.gender = 'female';
+  }
+  next();
+});
 // Hash password before saving
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
