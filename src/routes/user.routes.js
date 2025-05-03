@@ -14,6 +14,6 @@ router.use(auth);
 router.get('/profile', userController.getProfile);
 
 // Update own profile
-router.patch('/profile', userController.updateProfile);
+router.patch('/profile', upload.none(), userController.updateProfile);
 
 module.exports = router;
