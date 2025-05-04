@@ -33,9 +33,8 @@ const uploadFile = async (fileBuffer, fileName, fileType, folder = 'properties')
       Bucket: process.env.S3_BUCKET_NAME,
       Key: uniqueFileName,
       Body: fileBuffer,
-      ContentType: fileType,
-      ACL: 'public-read' // Set the file to be publicly readable
-      };
+      ContentType: fileType
+    };
     
     console.log('Initiating S3 upload with params:', {
       Bucket: params.Bucket,
