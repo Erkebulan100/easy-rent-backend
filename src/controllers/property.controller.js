@@ -1,6 +1,6 @@
 const Property = require('../models/property.model');
 const mapsService = require('../services/maps.service');
-
+const uploadService = require('../services/upload.service');
 // Get all properties (with optional filtering)
 // Update the getAllProperties method to support the new filters
 exports.getAllProperties = async (req, res) => {
@@ -103,6 +103,39 @@ exports.getPropertyById = async (req, res) => {
 // Create a new property
 exports.createProperty = async (req, res) => {
   try {
+    // ADD THESE LINES FOR DEBUGGING
+    console.log('=== CREATE PROPERTY REQUEST DEBUG ===');
+    console.log('req.files:', req.files);
+    console.log('req.file:', req.file);
+    console.log('req.body.images:', req.body.images);
+    console.log('Headers:', req.headers);
+    console.log('Content-Type:', req.headers['content-type']);
+    console.log('===================================');
+    // Process uploaded files
+if (req.files && req.files.length > 0) {
+  console.log('Processing uploaded files...');
+  const processedImages = [];
+  
+  for (const file of req.files) {
+    try {
+      console.log(`Uploading file: ${file.originalname}`);
+      const fileUrl = await uploadService.uploadFile(
+        file.buffer,
+        file.originalname,
+        file.mimetype,
+        'properties'
+      );
+      processedImages.push(fileUrl);
+      console.log(`File uploaded successfully: ${fileUrl}`);
+    } catch (uploadError) {
+      console.error(`Failed to upload file: ${file.originalname}`, uploadError);
+    }
+  }
+  
+  // Add uploaded image URLs to the request body
+  req.body.images = processedImages;
+  console.log('Final images array:', req.body.images);
+}
     // Add owner from authenticated user
     req.body.owner = req.user._id;
     
