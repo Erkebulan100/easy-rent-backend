@@ -222,6 +222,9 @@ router.get('/search', propertyController.searchProperties);
  *       404:
  *         description: Property not found
  */
+// Get properties for logged-in landlord (requires authentication)
+router.get('/my-properties', auth, propertyController.getMyProperties);
+
 // Get a single property (public access)
 router.get('/:id', propertyController.getPropertyById);
 
@@ -350,8 +353,6 @@ router.patch('/:id', auth, propertyController.updateProperty);
  *         description: Property not found
  */
 
-// Get properties for logged-in landlord (requires authentication)
-router.get('/my-properties', auth, propertyController.getMyProperties);
 
 // Delete a property (requires authentication - owner or admin only)
 router.delete('/:id', auth, propertyController.deleteProperty);
