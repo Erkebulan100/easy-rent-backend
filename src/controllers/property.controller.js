@@ -460,3 +460,51 @@ exports.getMyProperties = async (req, res) => {
     });
   }
 };
+// Get popular properties
+exports.getPopularProperties = async (req, res) => {
+  try {
+    // You can define what makes a property "popular" based on your business logic
+    // For example, properties with the most views or highest ratings
+    // For now, let's get the 4 most recently added properties as "popular"
+    const properties = await Property.find()
+      .sort({ createdAt: -1 })  // Sort by creation date (newest first)
+      .limit(4)                // Limit to 4 properties
+      .populate('owner', 'name email');
+    
+    res.status(200).json({
+      success: true,
+      count: properties.length,
+      data: properties
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+};
+// Get recommended properties
+exports.getRecommendedProperties = async (req, res) => {
+  try {
+    // In a real app, recommendations might be based on user preferences, location, etc.
+    // For now, let's implement a simple version that returns properties 
+    // with the highest price as "premium recommendations"
+    const properties = await Property.find()
+      .sort({ 'price.amount': -1 })  // Sort by price (highest first)
+      .limit(4)                     // Limit to 4 properties
+      .populate('owner', 'name email');
+    
+    res.status(200).json({
+      success: true,
+      count: properties.length,
+      data: properties
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+};

@@ -356,5 +356,54 @@ router.patch('/:id', auth, propertyController.updateProperty);
 
 // Delete a property (requires authentication - owner or admin only)
 router.delete('/:id', auth, propertyController.deleteProperty);
-
+/**
+ * @swagger
+ * /api/properties/popular:
+ *   get:
+ *     summary: Get popular properties
+ *     tags: [Properties]
+ *     responses:
+ *       200:
+ *         description: List of popular properties
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 count:
+ *                   type: number
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Property'
+ */
+// Get popular properties (public access)
+router.get('/popular', propertyController.getPopularProperties);
+/**
+ * @swagger
+ * /api/properties/recommended:
+ *   get:
+ *     summary: Get recommended properties
+ *     tags: [Properties]
+ *     responses:
+ *       200:
+ *         description: List of recommended properties
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 count:
+ *                   type: number
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Property'
+ */
+// Get recommended properties (public access)
+router.get('/recommended', propertyController.getRecommendedProperties);
 module.exports = router;
