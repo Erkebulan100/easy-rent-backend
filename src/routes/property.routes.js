@@ -225,6 +225,9 @@ router.get('/search', propertyController.searchProperties);
 // Get properties for logged-in landlord (requires authentication)
 router.get('/my-properties', auth, propertyController.getMyProperties);
 
+router.get('/recommended', propertyController.getRecommendedProperties);
+router.get('/popular', propertyController.getPopularProperties);
+
 // Get a single property (public access)
 router.get('/:id', propertyController.getPropertyById);
 
@@ -379,31 +382,5 @@ router.delete('/:id', auth, propertyController.deleteProperty);
  *                   items:
  *                     $ref: '#/components/schemas/Property'
  */
-// Get popular properties (public access)
-router.get('/popular', propertyController.getPopularProperties);
-/**
- * @swagger
- * /api/properties/recommended:
- *   get:
- *     summary: Get recommended properties
- *     tags: [Properties]
- *     responses:
- *       200:
- *         description: List of recommended properties
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 count:
- *                   type: number
- *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Property'
- */
-// Get recommended properties (public access)
-router.get('/recommended', propertyController.getRecommendedProperties);
+
 module.exports = router;
