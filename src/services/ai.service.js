@@ -1,6 +1,7 @@
 
 const OpenAI = require('openai');
-
+const fs = require('fs');
+const path = require('path');
 // Initialize OpenAI client
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -109,16 +110,51 @@ const processNaturalLanguageQuery = async (query) => {
  * @returns {Promise<string>} - Transcribed text
  */
 const transcribeAudio = async (audioBuffer) => {
+  let tempFilePath;
   try {
+    console.log('Starting transcription with Whisper API');
+    console.log('Audio buffer size:', audioBuffer.length, 'bytes');
+    
+    // Create a temporary file with a unique name
+    tempFilePath = path.join(__dirname, `temp-audio-${Date.now()}.m4a`);
+    fs.writeFileSync(tempFilePath, audioBuffer);
+    
+    console.log('Created temporary file:', tempFilePath);
+    
+    // Create a File object from the temporary file
+    const file = fs.createReadStream(tempFilePath);
+    
+    console.log('Calling OpenAI Whisper API...');
     const response = await openai.audio.transcriptions.create({
-      file: audioBuffer,
+      file: file,
       model: "whisper-1",
     });
-
+    
+    // Clean up the temporary file
+    fs.unlinkSync(tempFilePath);
+    console.log('Temporary file deleted');
+    
+    console.log('Transcription successful');
     return response.text;
   } catch (error) {
     console.error('Whisper API error:', error);
-    throw new Error('Failed to transcribe audio');
+    console.error('Error message:', error.message);
+    if (error.response) {
+      console.error('Status:', error.response.status);
+      console.error('Data:', JSON.stringify(error.response.data));
+    }
+    
+    // Clean up temp file if it exists and error occurred
+    try {
+      if (tempFilePath && fs.existsSync(tempFilePath)) {
+        fs.unlinkSync(tempFilePath);
+        console.log('Temporary file deleted after error');
+      }
+    } catch (cleanupError) {
+      console.error('Error cleaning up temp file:', cleanupError);
+    }
+    
+    throw new Error(`Failed to transcribe audio: ${error.message}`);
   }
 };
 
