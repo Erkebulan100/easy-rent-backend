@@ -1,4 +1,5 @@
 const { Client } = require('@googlemaps/google-maps-services-js');
+const axios = require('axios');
 
 // Initialize Google Maps client
 const googleMapsClient = new Client({});
@@ -11,25 +12,21 @@ const googleMapsClient = new Client({});
  */
 const getStreetViewPanorama = async (latitude, longitude) => {
   try {
-    const response = await googleMapsClient.streetView({
-      params: {
-        location: { lat: latitude, lng: longitude },
-        key: process.env.GOOGLE_MAPS_API_KEY,
-        // The size parameter is required but not relevant for metadata
-        size: '600x400'
-      }
-    });
-
-    // If the response has a status of OK, it means Street View is available
-    if (response.status === 200) {
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    const url = `https://maps.googleapis.com/maps/api/streetview/metadata?location=${latitude},${longitude}&key=${apiKey}`;
+    
+    const response = await axios.get(url);
+    
+    if (response.data && response.data.status === 'OK') {
       return {
         available: true,
-        panoramaId: response.headers.get('X-Panorama-Id'),
-        latitude,
-        longitude
+        panoramaId: response.data.pano_id,
+        latitude: response.data.location.lat,
+        longitude: response.data.location.lng,
+        date: response.data.date
       };
     }
-
+    
     return { available: false };
   } catch (error) {
     console.error('Street View API error:', error);
