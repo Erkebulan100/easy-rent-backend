@@ -108,6 +108,15 @@ Properties include comprehensive information:
 - `POST /api/uploads/document` - Upload user document
 - `DELETE /api/uploads/file` - Delete a file
 
+### Street View Services
+- `POST /api/streetview/metadata` - Get Street View panorama metadata for a location
+  - Required body parameters: latitude, longitude
+  - Returns information about whether Street View is available at the specified location
+- `POST /api/streetview/image-url` - Generate a Street View image URL for a location
+  - Required body parameters: latitude, longitude
+  - Optional body parameters: heading, pitch, fov, width, height
+  - Returns a URL that can be used to display a Street View image in the frontend
+
 ## Deployment
 This application is configured for deployment on AWS Elastic Beanstalk.
 

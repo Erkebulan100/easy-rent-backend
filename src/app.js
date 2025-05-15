@@ -16,7 +16,12 @@ const adminRoutes = require('./routes/admin.routes');
 const userRoutes = require('./routes/user.routes');
 const constantsRoutes = require('./routes/constants.routes');
 const currencyRoutes = require('./routes/currency.routes');
-
+const streetViewRoutes = require('./routes/streetview.routes');
+// Try adding logging to debug the import
+const mapsJsRoutesPath = require.resolve('./routes/maps-js.routes');
+console.log('Maps JS Routes path:', mapsJsRoutesPath);
+const mapsJsRoutes = require('./routes/maps-js.routes');
+console.log('Maps JS Routes loaded successfully:', !!mapsJsRoutes);
 const app = express();
 
 // Middleware
@@ -77,6 +82,9 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/constants', constantsRoutes);
 app.use('/api/currency', currencyRoutes);
+app.use('/api/streetview', streetViewRoutes);
+app.use('/api/maps-js', mapsJsRoutes);
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
